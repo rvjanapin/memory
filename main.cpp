@@ -1,86 +1,94 @@
 #include <bits/stdc++.h>
 using namespace std;
-
+#define RED     "\033[31m"      /* Red */
+#define GREEN   "\033[32m"      /* Green */
+#define RESET   "\033[0m" 
 vector <char> cards;
 int turns = 0;
 
 void cardsInit();
-void cardsOut(ofstream&);
 void play();
-void moveOut(int);
+void faceUp(int);
+void cardsOut(ofstream& file);
 
 int main(){
     cardsInit();
+    
     ofstream file("out.txt");
     cardsOut(file);
 
     play();
 }
 
-
 void cardsInit(){
     srand(time(NULL));  
-    //genreating chars
     random_device rd;
     auto rng = default_random_engine {rd()};
+    
     for(int i = 65; i <= 89 ; i++){
         cards.push_back(char(i));
         cards.push_back(char(i));
     }
+
     shuffle(cards.begin(), cards.end(), rng);
 }
 
-void moveOut(int x){
+void cardsOut(ofstream& file){
+    int i = 1; 
+    for(char val : cards){
+        file << i << " - " << val << endl;
+        i++;
+    }
+}
+
+void faceUp(int x){
     turns += 1;
     cout << turns << " - Card " << x+1 << " contains " << cards[x] << endl;
 }
 
-void cardsOut(ofstream& file){
-    file << '{' << '\n';   
-    for(auto val : cards){
-        file << '\t' <<  val << ',' << '\n';
-    }
-    file << '}';
-}
-
 void play(){
-    //checking the first and last pair
     int candy = 0;
     map<char, int> positions;
+
     while(candy < 25){
         for(int i = 0 ; i < cards.size(); i += 2){
-            moveOut(i);
-            moveOut(i+1);
+            faceUp(i); faceUp(i+1); 
             if(cards[i] == cards[i+1]){
-                candy++;
-                cout << "Jack gets candy #" << candy << endl;
-                remove(cards.begin(),cards.end(), cards[i]);
-            }
-            else if(cards[i] != cards[i+1]){
-                positions.insert(pair<char, int> (cards[i], i));
-                positions.insert(pair<char,int> (cards[i+1] , i+1));
-                cout << "The letters are not equal" << endl;
+                candy += 1;
+
+                cout << "-----------------------------------------------" << endl;
+                cout << GREEN << "Jack gets candy #" << candy << RESET << endl;
+                cout << "-----------------------------------------------" << endl;
+
+                replace(cards.begin(), cards.end(), cards[i], 'Z');
+                replace(cards.begin(), cards.end(), cards[i+1], 'Z');
+
             }
 
-            if(turns % 2 == 0){
-                cout << "The grader automatically turns cards " << i << " and " << i+1 << endl;
+            else if(cards[i] != cards[i+1] && cards[i] != 'Z' || cards[i+1] != 'Z'){
+                positions.insert(pair<char, int> (cards[i], i));
+                positions.insert(pair<char,int> (cards[i+1] , i+1));
+
+                cout << RED << "The letters are not equal" << RESET << endl;
+                cout << "-----------------------------------------------" << endl;
+                cout << "The grader automatically turns cards " << i+1 << " and " << i+2 << endl;
+                cout << "-----------------------------------------------" << endl;
             }
+
             if(candy == 25)
                 break;
         }
-
-        //second loop
         for(int i = 0 ; i < cards.size(); i++){
             if(positions[cards[i]] != i){
-                moveOut(i);
-                moveOut(positions[cards[i]]);
-                candy++;
-                cout << "Jack gets candy #" << candy << endl;
+                faceUp(positions[cards[i]]); faceUp(i); 
+                candy += 1;
+                cout << "-----------------------------------------------" << endl;
+                cout << GREEN << "Jack gets candy #" << candy << RESET << endl;
+                cout << "-----------------------------------------------" << endl;
             }
             if(candy == 25){
                 break;
             }
         }
     }
-
 }
