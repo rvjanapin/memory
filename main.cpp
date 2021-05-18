@@ -3,7 +3,6 @@ using namespace std;
 #define RED     "\033[31m"      /* Red */
 #define GREEN   "\033[32m"      /* Green */
 #define RESET   "\033[0m" 
-
 vector <char> cards;
 int turns = 0;
 
@@ -48,23 +47,25 @@ void faceUp(int x){
 void play(){
     int candy = 0;
     map<char, int> positions;
-
     while(candy < 25){
+
+        //first iteration to memorize all the positions
         for(int i = 0 ; i < cards.size(); i += 2){
             faceUp(i); faceUp(i+1); 
-            if(cards[i] == cards[i+1]){
+            if(cards[i] == cards[i+1]){ //if there's a pair of consecutive letters
                 candy += 1;
 
                 cout << "-----------------------------------------------" << endl;
                 cout << GREEN << "Jack gets candy #" << candy << RESET << endl;
                 cout << "-----------------------------------------------" << endl;
 
-                replace(cards.begin(), cards.end(), cards[i], 'Z');
-                replace(cards.begin(), cards.end(), cards[i+1], 'Z');
-
+                replace(cards.begin(), cards.end(), cards[i], '-');
+                replace(cards.begin(), cards.end(), cards[i+1], '-');
+                positions.insert(pair<char, int> (cards[i], i));
+                positions.insert(pair<char,int> (cards[i+1] , i+1));
             }
 
-            else if(cards[i] != cards[i+1] && cards[i] != 'Z' || cards[i+1] != 'Z'){
+            else if(cards[i] != cards[i+1]){
                 positions.insert(pair<char, int> (cards[i], i));
                 positions.insert(pair<char,int> (cards[i+1] , i+1));
 
@@ -73,14 +74,15 @@ void play(){
                 cout << "The grader automatically turns cards " << i+1 << " and " << i+2 << endl;
                 cout << "-----------------------------------------------" << endl;
             }
-
             if(candy == 25)
                 break;
-
         }
+
+        //second iteration to match it up
         for(int i = 0 ; i < cards.size(); i++){
-            if(positions[cards[i]] != i){
-                faceUp(positions[cards[i]]); faceUp(i); 
+            if(positions[cards[i]] != i and cards[i] != '-'){
+                faceUp(positions[cards[i]]);
+                faceUp(i); 
                 candy += 1;
                 cout << "-----------------------------------------------" << endl;
                 cout << GREEN << "Jack gets candy #" << candy << RESET << endl;
