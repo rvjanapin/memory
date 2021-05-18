@@ -3,6 +3,7 @@ using namespace std;
 #define RED     "\033[31m"      /* Red */
 #define GREEN   "\033[32m"      /* Green */
 #define RESET   "\033[0m" 
+
 vector <char> cards;
 int turns = 0;
 
@@ -13,23 +14,21 @@ void cardsOut(ofstream& file);
 
 int main(){
     cardsInit();
-    
     ofstream file("out.txt");
     cardsOut(file);
-
     play();
 }
 
 void cardsInit(){
     srand(time(NULL));  
-    random_device rd;
+    random_device rd {};
     auto rng = default_random_engine {rd()};
-    
+
     for(int i = 65; i <= 89 ; i++){
         cards.push_back(char(i));
         cards.push_back(char(i));
     }
-
+    
     shuffle(cards.begin(), cards.end(), rng);
 }
 
@@ -77,6 +76,7 @@ void play(){
 
             if(candy == 25)
                 break;
+
         }
         for(int i = 0 ; i < cards.size(); i++){
             if(positions[cards[i]] != i){
@@ -86,6 +86,7 @@ void play(){
                 cout << GREEN << "Jack gets candy #" << candy << RESET << endl;
                 cout << "-----------------------------------------------" << endl;
             }
+
             if(candy == 25){
                 break;
             }
